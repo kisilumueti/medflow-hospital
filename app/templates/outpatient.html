@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outpatient Visit</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Outpatient Visit</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('outpatient') }}" class="card p-4 shadow-sm">
+            <div class="mb-3">
+                <label for="patient_id" class="form-label">Patient ID:</label>
+                <input type="text" class="form-control" id="patient_id" name="patient_id" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="purpose" class="form-label">Purpose of Visit:</label>
+                <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Record Visit</button>
+        </form>
+        
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    </div>
+</body>
+</html>
