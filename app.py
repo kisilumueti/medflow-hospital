@@ -2,22 +2,49 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import mysql.connector
 from config import get_db_connection
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import datetime
 import re
-
+import os
 app = Flask(__name__,template_folder="app/templates")
 
 app.secret_key = "your_secret_key"  # Set a secret key for sessions
+
+# Configuration for image uploads
+UPLOAD_FOLDER = os.path.join('static', 'uploads', 'radiology')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+# Make sure the folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# Flask configuration
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Function to check if uploaded file has an allowed extension
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Generate unique doctor ID
 def generate_doctor_id():
     year = datetime.datetime.now().year % 100  # Get last two digits of the year
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM users")  # Corrected table name
-    count = cursor.fetchone()[0] + 1  # Increment count
+    cursor.execute("SELECT id FROM users ORDER BY id DESC LIMIT 1")  # Get the last inserted ID
+    last_id = cursor.fetchone()
+
+    if last_id:
+        # Extract the increment part from the last_id (e.g., 'doc25-00002' -> 2)
+        last_id_number = int(last_id[0].split('-')[1])
+        new_id_number = last_id_number + 1
+    else:
+        # If no ID exists (first entry), start with 'doc{year}-00001'
+        new_id_number = 1
+
     conn.close()
-    return f"doc{year}-{count:05d}"
+
+    # Format the new ID (e.g., 'doc25-00003')
+    return f"doc{year}-{new_id_number:05d}"
 
 @app.route("/")
 def index():
@@ -45,15 +72,15 @@ def register():
             flash("Phone number must be 10 digits.", "danger")
             return redirect(url_for("register"))
 
-        doctor_id = generate_doctor_id()
+        doctor_id = generate_doctor_id()  # Get the unique doctor ID
         hashed_password = generate_password_hash(password)  # Hash password
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO users (id, hospital_assigned, national_id, phone, department, first_name, last_name, residency, email, password)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO users (id, hospital_assigned, national_id, phone, department, first_name, last_name, residency, email, password, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             """, (doctor_id, hospital_assigned, national_id, phone, department, first_name, last_name, residency, email, hashed_password))
             conn.commit()
             conn.close()
@@ -63,6 +90,15 @@ def register():
             flash(f"Database error: {err}", "danger")
 
     return render_template("register.html")
+
+
+
+
+
+
+
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -86,10 +122,15 @@ def login():
                 # Start session and store user details
                 session["user_id"] = user["id"]  # Store the unique user ID
                 session["user_name"] = f"{user['first_name']} {user['last_name']}"  # Store full name
-                session["department"] = user["department"]  # Store department if needed
+                session["department"] = user["department"]  # Store department
 
                 flash("Login successful!", "success")
-                return redirect(url_for("dashboard"))  # Redirect to dashboard
+
+                # Check if the user is in the 'registry' department
+                if user['department'].lower() == 'registry':
+                    return redirect(url_for("registry"))  # Redirect to registry page
+                else:
+                    return redirect(url_for("dashboard"))  # Redirect to dashboard
 
         except Exception as e:
             flash(f"Database error: {e}", "danger")
@@ -98,6 +139,9 @@ def login():
             conn.close()
 
     return render_template("login.html")
+
+
+
 
 
 @app.route("/reset", methods=["GET", "POST"])
@@ -397,6 +441,131 @@ def hdu():
     
     return render_template("hdu.html", patients=patients)
 
+
+
+@app.route("/radiology", methods=["GET", "POST"])
+def radiology():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch patients for the dropdown
+    cursor.execute("SELECT patient_id, first_name, last_name FROM patients")
+    patients = cursor.fetchall()
+
+    if request.method == "POST":
+        patient_id = request.form.get("patient_id")
+        notes = request.form.get("notes")
+        file = request.files.get("image")
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+            # Ensure the upload directory exists
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+            file.save(filepath)
+
+            cursor.execute("""
+                INSERT INTO radiology_reports (patient_id, image_path, notes)
+                VALUES (%s, %s, %s)
+            """, (patient_id, filepath, notes))
+            conn.commit()
+
+            flash("Radiology report uploaded successfully!", "success")
+        else:
+            flash("Invalid file type or no file selected.", "danger")
+
+    cursor.close()
+    conn.close()
+
+    return render_template("radiology.html", patients=patients)
+
+@app.route("/pharmacy", methods=["GET", "POST"])
+def pharmacy():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Retrieve consultations where prescriptions are available and not yet dispensed
+    cursor.execute("""
+        SELECT consultation_id, patient_id, notes, prescription, consultation_date, status 
+        FROM consultations
+        WHERE prescription IS NOT NULL AND status = 'Not Dispensed'
+    """)
+    consultations = cursor.fetchall()
+
+    if request.method == "POST":
+        consultation_id = request.form["consultation_id"]
+
+        # Update status to 'Dispensed'
+        cursor.execute("""
+            UPDATE consultations
+            SET status = 'Dispensed'
+            WHERE consultation_id = %s
+        """, (consultation_id,))
+        conn.commit()
+        flash("Prescription dispensed successfully!", "success")
+
+    cursor.close()
+    conn.close()
+
+    return render_template("pharmacy.html", consultations=consultations)
+
+@app.route("/patient_records", methods=["GET", "POST"])
+def patient_records():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == "POST":
+        patient_id = request.form["patient_id"]
+        
+        # Query for consultations
+        cursor.execute("""
+            SELECT consultation_id, patient_id, notes, prescription, consultation_date, status
+            FROM consultations
+            WHERE patient_id = %s
+        """, (patient_id,))
+        consultations = cursor.fetchall()
+
+        # Query for triage records
+        cursor.execute("""
+            SELECT triage_id, patient_id, blood_pressure, heart_rate, temperature, weight, height
+            FROM triage
+            WHERE patient_id = %s
+        """, (patient_id,))
+        triage_records = cursor.fetchall()
+
+        # Query for radiology reports
+        cursor.execute("""
+            SELECT id, patient_id, image_path, notes, uploaded_at
+            FROM radiology_reports
+            WHERE patient_id = %s
+        """, (patient_id,))
+        radiology_reports = cursor.fetchall()
+
+        # Query for HDU records
+        cursor.execute("""
+            SELECT hdu_id, patient_id, admission_date, hdu_condition, monitoring_notes
+            FROM hdu
+            WHERE patient_id = %s
+        """, (patient_id,))
+        hdu_records = cursor.fetchall()
+
+        # Query for emergency cases
+        cursor.execute("""
+            SELECT case_id, patient_id, emergency_condition, admitted_at
+            FROM emergency_cases
+            WHERE patient_id = %s
+        """, (patient_id,))
+        emergency_cases = cursor.fetchall()
+
+        conn.close()
+
+        return render_template("patient_records.html", patient_id=patient_id, consultations=consultations, 
+                               triage_records=triage_records, radiology_reports=radiology_reports,
+                               hdu_records=hdu_records, emergency_cases=emergency_cases)
+
+    return render_template("patient_records.html")
 
 @app.route("/medications", methods=["GET", "POST"])
 def medications():
