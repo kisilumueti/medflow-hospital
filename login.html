@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MedFlow Hospital System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .header i {
+            font-size: 50px;
+            margin-right: 15px;
+            color: #007bff;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .btn-hover:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+        }
+        .form-control {
+            border-radius: 5px;
+            box-shadow: none;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .footer-links {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .footer-links a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        /* Animation for the face */
+        .animated-face {
+            font-size: 50px;
+            transition: transform 0.3s ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        .jovial {
+            content: "\1F60D"; /* Heart Eyes Emoji */
+        }
+
+        .error {
+            content: "\1F614"; /* Pensive Face Emoji */
+        }
+
+        .normal {
+            content: "\1F610"; /* Neutral Face Emoji */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-stethoscope"></i>
+        <h1>MedFlow Hospital</h1>
+    </div>
+
+    <div class="container">
+        <div class="login-container">
+            <!-- Face Animation (using text-based emojis) -->
+            <div class="animated-face" id="animatedFace">😐</div>
+            <h3 class="mb-4">Login to MedFlow</h3>
+            <form id="loginForm" action="/login" method="POST">
+                <div class="mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary login-btn btn-hover">Login</button>
+            </form>
+            <div class="loading mt-3" id="loading">Processing...</div>
+            <div class="footer-links">
+                <hr>
+                <a href="/" class="btn btn-link">Home</a> |
+                <a href="/register" class="btn btn-link">Register</a> |
+                <a href="/reset" class="btn btn-link">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const $head = $('#animatedFace'); // Selecting the animated face
+
+            const $emailInput = $('input[name="email"]');
+            const $passwordInput = $('input[name="password"]');
+
+            // Jovial state when interacting with email
+            $emailInput.on('focus', function() {
+                $head.text('😍'); // Heart Eyes Emoji
+            });
+
+            // Eyes closed when interacting with password
+            $passwordInput.on('focus', function() {
+                $head.text('😐'); // Neutral Face Emoji
+            });
+
+            // Pensive expression on form submission if there's an error
+            $('#loginForm').submit(function() {
+                $('#loading').show();
+                $head.text('😔'); // Pensive Face Emoji
+            });
+
+            $('#loginForm').submit(function() {
+                $('#loading').show();
+                // Simulate form submission (normally here we would have an AJAX request)
+                setTimeout(function() {
+                    // Simulating a response from the server
+                    const isLoginSuccess = false; // Change to true to simulate success
+                    if (isLoginSuccess) {
+                        // On success, reset face to normal or jovial
+                        $head.text('😍'); // Heart Eyes Emoji
+                    } else {
+                        // On failure, show the error face
+                        $head.text('😔'); // Pensive Face Emoji
+                    }
+                    $('#loading').hide();
+                }, 2000); // Simulating server delay
+            });
+        });
+    </script>
+
+</body>
+</html>

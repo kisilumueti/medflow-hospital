@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy - MedFlow Hospital System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin-top: 60px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+        .navbar-nav .nav-item .nav-link:hover {
+            background-color: #e0f7fa;
+            border-radius: 5px;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #343a40;
+            color: white;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+            padding-left: 10px;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+        .table-striped tbody tr:hover {
+            background-color: #f1f1f1;
+            transition: background-color 0.3s ease;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .btn-success {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <ul class="list-group">
+            <li class="list-group-item active">Navigation</li>
+            <li class="list-group-item"><a href="{{ url_for('register_patient') }}">Patient Registration</a></li>
+            <li class="list-group-item"><a href="{{ url_for('outpatient') }}">Outpatient Visit</a></li>
+            <li class="list-group-item"><a href="{{ url_for('triage') }}">Triage</a></li>
+            <li class="list-group-item"><a href="{{ url_for('emergency') }}">Emergency Care</a></li>
+            <li class="list-group-item"><a href="{{ url_for('consultation') }}">Consultation</a></li>
+            <li class="list-group-item"><a href="{{ url_for('radiology') }}">Radiology</a></li>
+            <li class="list-group-item"><a href="{{ url_for('pharmacy') }}">Pharmacy</a></li>
+            <li class="list-group-item"><a href="{{ url_for('maternity') }}">Maternity</a></li>
+            <li class="list-group-item"><a href="{{ url_for('hdu') }}">High Dependency Unit</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">MedFlow <i class="fas fa-stethoscope"></i></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div class="container mt-5 pt-5">
+            <h3 class="text-center">Pharmacy - Prescription Dispensing</h3>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Consultation ID</th>
+                                <th>Patient ID</th>
+                                <th>Prescription</th>
+                                <th>Consultation Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consultation in consultations %}
+                            <tr>
+                                <td>{{ consultation.consultation_id }}</td>
+                                <td>{{ consultation.patient_id }}</td>
+                                <td>{{ consultation.prescription }}</td>
+                                <td>{{ consultation.consultation_date }}</td>
+                                <td>
+                                    <form action="{{ url_for('pharmacy') }}" method="POST">
+                                        <input type="hidden" name="consultation_id" value="{{ consultation.consultation_id }}">
+                                        <button type="submit" class="btn btn-success">Mark as Dispensed</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

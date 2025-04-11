@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Records - MedFlow Hospital System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin-top: 60px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+        .navbar-nav .nav-item .nav-link:hover {
+            background-color: #e0f7fa;
+            border-radius: 5px;
+        }
+        .container-fluid {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .sidebar {
+            min-width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            padding-top: 30px;
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            width: 100%;
+        }
+        .content h3 {
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            vertical-align: middle;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                margin-top: 60px;
+            }
+            .content {
+                margin-left: 0;
+            }
+            .navbar-nav .nav-item .nav-link {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">MedFlow <i class="fas fa-stethoscope"></i></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid mt-5 pt-5">
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="list-group">
+                <li class="list-group-item active">Navigation</li>
+                <li class="list-group-item"><a href="{{ url_for('register_patient') }}">Patient Registration</a></li>
+                <li class="list-group-item"><a href="{{ url_for('outpatient') }}">Outpatient Visit</a></li>
+                <li class="list-group-item"><a href="{{ url_for('triage') }}">Triage</a></li>
+                <li class="list-group-item"><a href="{{ url_for('emergency') }}">Emergency Care</a></li>
+                <li class="list-group-item"><a href="{{ url_for('consultation') }}">Consultation</a></li>
+                <li class="list-group-item"><a href="{{ url_for('radiology') }}">Radiology</a></li>
+                <li class="list-group-item"><a href="{{ url_for('pharmacy') }}">Pharmacy</a></li>
+                <li class="list-group-item"><a href="{{ url_for('maternity') }}">Maternity</a></li>
+                <li class="list-group-item"><a href="{{ url_for('hdu') }}">High Dependency Unit</a></li>
+            </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <h3 class="text-center">Patient Records</h3>
+
+            <!-- Search Form -->
+            <form method="POST" action="{{ url_for('patient_records') }}">
+                <div class="mb-3">
+                    <label for="patient_id" class="form-label">Enter Patient ID:</label>
+                    <input type="text" class="form-control" id="patient_id" name="patient_id" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            {% if patient_id %}
+            <hr>
+            <h4>Consultations</h4>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Consultation ID</th>
+                        <th>Notes</th>
+                        <th>Prescription</th>
+                        <th>Consultation Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consultation in consultations %}
+                    <tr>
+                        <td>{{ consultation.consultation_id }}</td>
+                        <td>{{ consultation.notes }}</td>
+                        <td>{{ consultation.prescription }}</td>
+                        <td>{{ consultation.consultation_date }}</td>
+                        <td>{{ consultation.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h4>Triage Records</h4>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Triage ID</th>
+                        <th>Blood Pressure</th>
+                        <th>Heart Rate</th>
+                        <th>Temperature</th>
+                        <th>Weight</th>
+                        <th>Height</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for triage in triage_records %}
+                    <tr>
+                        <td>{{ triage.triage_id }}</td>
+                        <td>{{ triage.blood_pressure }}</td>
+                        <td>{{ triage.heart_rate }}</td>
+                        <td>{{ triage.temperature }}</td>
+                        <td>{{ triage.weight }}</td>
+                        <td>{{ triage.height }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h4>Radiology Reports</h4>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Radiology ID</th>
+                        <th>Image</th>
+                        <th>Notes</th>
+                        <th>Uploaded At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in radiology_reports %}
+                    <tr>
+                        <td>{{ report.id }}</td>
+                        <td><img src="{{ report.image_path }}" alt="Radiology Image" width="100"></td>
+                        <td>{{ report.notes }}</td>
+                        <td>{{ report.uploaded_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h4>HDU Records</h4>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>HDU ID</th>
+                        <th>Admission Date</th>
+                        <th>Condition</th>
+                        <th>Monitoring Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hdu in hdu_records %}
+                    <tr>
+                        <td>{{ hdu.hdu_id }}</td>
+                        <td>{{ hdu.admission_date }}</td>
+                        <td>{{ hdu.hdu_condition }}</td>
+                        <td>{{ hdu.monitoring_notes }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h4>Emergency Cases</h4>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Case ID</th>
+                        <th>Condition</th>
+                        <th>Admitted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in emergency_cases %}
+                    <tr>
+                        <td>{{ case.case_id }}</td>
+                        <td>{{ case.emergency_condition }}</td>
+                        <td>{{ case.admitted_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

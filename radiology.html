@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Radiology Reports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .nav-sidebar {
+            max-width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 1rem;
+        }
+        .hamburger {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .menu-collapse {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .menu-collapse {
+                display: block;
+            }
+            .nav-sidebar {
+                display: none;
+            }
+            .nav-sidebar.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light animate__animated animate__fadeIn">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Hamburger for small screens -->
+            <div class="menu-collapse p-3 bg-primary text-white">
+                <span class="hamburger" onclick="toggleNav()">☰ Menu</span>
+            </div>
+
+            <!-- Sidebar Navigation -->
+            <div id="sidebarNav" class="col-md-3 col-12 nav-sidebar">
+                <ul class="list-group">
+                    <li class="list-group-item active">Navigation</li>
+                    <li class="list-group-item"><a href="{{ url_for('register_patient') }}">Patient Registration</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('outpatient') }}">Outpatient Visit</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('triage') }}">Triage</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('emergency') }}">Emergency Care</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('consultation') }}">Consultation</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('radiology') }}">Radiology</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('maternity') }}">Maternity</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('hdu') }}">High Dependency Unit</a></li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-12 p-4">
+                <div class="card shadow-sm animate__animated animate__fadeInUp">
+                    <div class="card-header bg-info text-white">
+                        <h4>Upload Radiology Report</h4>
+                    </div>
+                    <div class="card-body">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="{{ url_for('radiology') }}" method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="patient_id" class="form-label">Select Patient:</label>
+                                <select name="patient_id" class="form-select" required>
+                                    {% for patient in patients %}
+                                        <option value="{{ patient.patient_id }}">
+                                            {{ patient.first_name }} {{ patient.last_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Upload X-ray or Scan Image:</label>
+                                <input type="file" class="form-control" name="image" accept="image/*" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Radiology Notes:</label>
+                                <textarea name="notes" class="form-control" rows="4" placeholder="Write observations here..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Submit Report</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleNav() {
+            const nav = document.getElementById("sidebarNav");
+            nav.classList.toggle("show");
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

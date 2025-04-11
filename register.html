@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - MedFlow Hospital System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #e8f0ff, #ffffff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .register-container {
+      max-width: 520px;
+      margin: 60px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      animation: fadeInDown 1s;
+    }
+
+    .register-container h3 {
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #0d6efd;
+    }
+
+    .form-control {
+      border-radius: 12px;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .form-control:focus {
+      box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+    }
+
+    .btn-hover {
+      background-color: #0d6efd;
+      transition: background-color 0.3s ease-in-out, transform 0.2s ease;
+    }
+
+    .btn-hover:hover {
+      background-color: #084298;
+      transform: scale(1.03);
+      color: #fff;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: #0d6efd;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    a.btn-link:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2 class="text-center text-primary my-4 animate__animated animate__fadeInDown">MedFlow Hospital System</h2>
+    
+    <!-- Display Flash messages here -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert alert-{{ messages[0][0] }} mt-3" role="alert">
+          {{ messages[0][1] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="register-container shadow-sm animate__animated animate__fadeInUp">
+      <h3 class="text-center">Create Your Account</h3>
+      <form id="registerForm" action="/register" method="POST">
+        <div class="mb-3">
+          <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+        </div>
+        <div class="mb-3">
+          <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+        </div>
+        <div class="mb-3">
+          <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+        </div>
+        <div class="mb-3">
+          <input type="password" name="password" class="form-control" placeholder="Password (min 6 characters)" required minlength="6">
+        </div>
+        <div class="mb-3">
+          <input type="text" name="national_id" class="form-control" placeholder="National ID (8 digits)" required pattern="\d{8}">
+        </div>
+        <div class="mb-3">
+          <input type="text" name="phone" class="form-control" placeholder="Phone (10 digits)" required pattern="\d{10}">
+        </div>
+        <div class="mb-3">
+          <input type="text" name="hospital_assigned" class="form-control" placeholder="Hospital Assigned" required>
+        </div>
+        <div class="mb-3">
+          <input type="text" name="department" class="form-control" placeholder="Department" required>
+        </div>
+        <div class="mb-3">
+          <input type="text" name="residency" class="form-control" placeholder="Residency" required>
+        </div>
+        <button type="submit" class="btn btn-hover w-100 mt-3">Register</button>
+      </form>
+      <div class="loading mt-3" id="loading">⏳ Processing... Please wait</div>
+      <a href="/login" class="btn btn-link d-block mt-2">Already have an account? Proceed to Login</a>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#registerForm').on('submit', function () {
+        $('#loading').fadeIn();
+      });
+    });
+  </script>
+
+</body>
+</html>

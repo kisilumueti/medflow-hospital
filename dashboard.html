@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MedFlow Hospital System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin-top: 60px; /* Push the content below the fixed navbar */
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+        .navbar-nav .nav-item .nav-link:hover {
+            background-color: #e0f7fa;
+            border-radius: 5px;
+        }
+        .icon {
+            font-size: 3rem;
+            color: #007bff;
+            transition: transform 0.3s ease;
+        }
+        .icon:hover {
+            transform: scale(1.1);
+        }
+        .card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .card-body {
+            transition: background-color 0.5s ease;
+        }
+        .card-body:hover {
+            background-color: #f1f1f1;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+        }
+        .nav-item .btn-logout {
+            color: white;
+            background-color: #d9534f;
+            border-radius: 5px;
+        }
+        .nav-item .btn-logout:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">MedFlow <i class="fas fa-stethoscope"></i></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white btn-logout" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h3 class="text-center">Hospital Overview</h3>
+        <div class="row text-center mt-4">
+            <div class="col-md-4">
+                <div class="card shadow p-3 mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-user-md icon"></i>
+                        <h5>Total Doctors</h5>
+                        <p class="fs-3">{{ total_doctors }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow p-3 mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-users icon"></i>
+                        <h5>Total Patients</h5>
+                        <p class="fs-3">{{ total_patients }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow p-3 mb-4">
+                    <div class="card-body">
+                        <i class="fas fa-procedures icon"></i>
+                        <h5>Total Outpatients</h5>
+                        <p class="fs-3">{{ total_outpatient_visits }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <ul class="list-group">
+                    <li class="list-group-item active">Navigation</li>
+                    <li class="list-group-item"><a href="{{ url_for('register_patient') }}">Patient Registration</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('outpatient') }}">Outpatient Visit</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('triage') }}">Triage</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('emergency') }}">Emergency Care</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('consultation') }}">Consultation</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('radiology') }}">Radiology</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('pharmacy') }}">Pharmacy</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('patient_records') }}">Patient Records</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('maternity') }}">Maternity</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('hdu') }}">High Dependency Unit</a></li>
+                </ul>
+            </div>
+            <div class="col-md-9">
+                <div class="card p-4 shadow">
+                    <h4>Hospital Quality & Assurance</h4>
+                    <p><i class="fas fa-check-circle text-success"></i> Dedicated and responsible doctors with a can-do attitude.</p>
+                    <p><i class="fas fa-user-nurse text-primary"></i> High-quality maternity and surgical care.</p>
+                    <p><i class="fas fa-stethoscope text-danger"></i> Advanced AI integration for better diagnostics.</p>
+                    <p><i class="fas fa-hospital text-warning"></i> Clean and well-maintained hospital environment.</p>
+                    <p><i class="fas fa-utensils text-info"></i> Nutritious and balanced meals for patients.</p>
+                    <p><i class="fas fa-handshake text-secondary"></i> Reliable and professional hospital staff.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Animation -->
+    <div class="loading mt-3" id="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
